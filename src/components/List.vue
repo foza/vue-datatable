@@ -49,20 +49,20 @@
 
       <template slot="actions" slot-scope="row">
         <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
-          Информация
+          Остаток
         </b-button>
-        <b-button size="sm" @click="row.toggleDetails">
-          {{ row.detailsShowing ? 'Hide' : 'Show' }} Details
+
+        <b-button size="sm" @click="goTodetail(row.item)" class="mr-1">
+          Подробно
         </b-button>
+
+        <b-button variant="outline-success" size="12px" @click="info(row.item, row.index, $event.target)" class="mr-1">
+          
+          <icon name="fa-thumbs-up">+</icon>
+        </b-button>
+      
       </template>
 
-      <template slot="row-details" slot-scope="row">
-        <b-card>
-          <ul>
-            <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
-          </ul>
-        </b-card>
-      </template>
     </b-table>
 
     <b-row>
@@ -91,16 +91,6 @@
               :sort-desc.sync="sortDesc"
               @filtered="onFiltered"
       >
-        <template slot="type" slot-scope="row">
-          <p v-if="infos.type==1">Приход</p>
-          <p v-else>Приход</p>
-        </template>
-
-        <template slot="type_r" slot-scope="row">
-          <p v-if="row==1">Бонус</p>
-          <p v-else>Бонус</p>
-        </template>
-
       </b-table>
     </b-modal>
 
@@ -110,6 +100,11 @@
 
 
 <script>
+
+import Vue from 'vue'
+import BootstrapVue from 'bootstrap-vue'
+Vue.use(BootstrapVue);
+
 import axios from 'axios';
 const items = [];
 const infos = [];
@@ -126,10 +121,7 @@ export default {
           { key: 'actions', label: 'Actions' }
         ],
         infoFields: [
-          { key: 'created_at', label: 'Дата создания', sortable: true, sortDirection: 'desc' },
-          { key: 'type', label: 'Приход/Расход', sortable: true, class: 'text-center' },
-          { key: 'amount', label: 'Сумма', sortable: true, class: 'text-center' },
-          { key: 'type_r', label: 'Тип', sortable: true, class: 'text-center' },
+          { key: 'user_sum', label: 'Общый баланс(Остаток)', sortable: true, class: 'text-center' },
         ],
         currentPage: 1,
         perPage: 5,
@@ -155,12 +147,11 @@ export default {
 
   methods: {
     info(item, index, button) {
-      axios.get('http://localhost:3001/courier/'+item.id)
+      axios.get('http://192.168.1.91:3001/sum/'+item.id)
               .then(response => (this.infos = response.data));
       this.modalInfo.title = `Имя курьера: ${item.name}`
       this.modalInfo.content = JSON.stringify(this.infos, null, 2)
       this.$root.$emit('bv::show::modal', 'modalInfo', button)
-      console.log(infos);
     },
     resetModal() {
       this.modalInfo.title = ''
@@ -170,17 +161,16 @@ export default {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
       this.currentPage = 1
-    }
+    },
+    goTodetail(proId) {
+    this.$router.push({name:'details',params:{Pid:proId.id}})
+  }
   },
 
   mounted() {
     axios
-      .get('http://localhost:3001/list')
+      .get('http://192.168.1.91:3001/list')
       .then(response => (this.items = response.data));
-
-
-
-
 
   }
 
