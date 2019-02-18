@@ -56,10 +56,7 @@
           Подробно
         </b-button>
 
-        <b-button variant="outline-success" size="12px" @click="info(row.item, row.index, $event.target)" class="mr-1">
-          
-          <icon name="fa-thumbs-up">+</icon>
-        </b-button>
+        <b-button variant="outline-success" size="12px" @click="info(row.item, row.index, $event.target)" class="mr-1">+</b-button>
       
       </template>
 
@@ -147,7 +144,7 @@ export default {
 
   methods: {
     info(item, index, button) {
-      axios.get('http://192.168.1.91:3001/sum/'+item.id)
+      axios.get('http://localhost:3001/sum/'+item.id)
               .then(response => (this.infos = response.data));
       this.modalInfo.title = `Имя курьера: ${item.name}`
       this.modalInfo.content = JSON.stringify(this.infos, null, 2)
@@ -157,6 +154,7 @@ export default {
       this.modalInfo.title = ''
       this.modalInfo.content = ''
     },
+
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
@@ -169,7 +167,7 @@ export default {
 
   mounted() {
     axios
-      .get('http://192.168.1.91:3001/list')
+      .get('http://localhost:3001/list')
       .then(response => (this.items = response.data));
 
   }
