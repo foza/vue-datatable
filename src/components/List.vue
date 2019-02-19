@@ -56,8 +56,8 @@
           Подробно
         </b-button>
 
-        <b-button variant="outline-success" size="12px" @click="info(row.item, row.index, $event.target)" class="mr-1">+</b-button>
-      
+          <b-button v-b-modal.modalPrevent>+</b-button>
+
       </template>
 
     </b-table>
@@ -74,7 +74,7 @@
     </b-row>
 
     <!-- Info modal -->
-    <b-modal size="xl" id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
+    <b-modal size="lg" id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
       <!--<pre>{{ modalInfo.content }}</pre>-->
       <b-table
               show-empty
@@ -89,6 +89,55 @@
               @filtered="onFiltered"
       >
       </b-table>
+    </b-modal>
+
+    <b-modal
+      size="xl"
+      id="modalPrevent"
+      ref="modal"
+      title="Создать"
+      @ok="handleOk"
+      @shown="clearName"
+    >
+      <form @submit.stop.prevent="handleSubmit">
+        <b-form-input type="text" placeholder="Enter your name" v-model="name" />
+        <hr>
+        <b-form-select v-model="selected" :options="options" />
+        <hr>
+        <b-form-select v-model="selected2" :options="payOptions" />
+        <hr>
+        <b-form-input type="text" placeholder="Введите сумму" v-model="amount" />
+        <hr>
+        <b-form-input type="number" placeholder="Введите номер заказа" v-model="order_id" />
+          <hr>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Имя</th>
+              <th scope="col">Тип</th>
+              <th scope="col">Тип2</th>
+              <th scope="col">Номер заказа</th>
+              <th scope="col">Сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ name }}</td>
+              <td> 
+                <p v-if ="selected === '1'">Приход</p>
+                <p v-if ="selected === '2'">Расход</p>
+              </td>
+              <td>
+                <p v-if ="selected2  === '1'">Бесплатная доставка</p>
+                <p v-if ="selected2 === '2'">Бонус</p>
+              </td>
+              <td>{{ order_id }}</td>
+              <td>{{ amount }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
     </b-modal>
 
   </b-container>
@@ -112,6 +161,14 @@ export default {
       return {
         infos: infos,
         items: items,
+
+        order_id:'',
+        name:'',
+        selected:'',
+        selected2:'',
+        amount:'',
+
+
         fields: [
           { key: 'name', label: 'ИМЯ', sortable: true, sortDirection: 'desc' },
           { key: 'phone', label: 'Телефон', sortable: true, class: 'text-center' },
@@ -120,6 +177,25 @@ export default {
         infoFields: [
           { key: 'user_sum', label: 'Общый баланс(Остаток)', sortable: true, class: 'text-center' },
         ],
+
+        selected: null,
+        options: [
+          { value: null, text: 'Выберите' },
+          { value: '1', text: 'Приход(Начисление)' },
+          { value: '2', text: 'Расход' }
+        ],
+
+        selected2: null,
+        payOptions: [
+          { value: null, text: 'Выберите' },
+          { value: '1', text: 'Бесплатная доставка' },
+          { value: '2', text: 'Бонус' }
+        ],
+
+
+
+
+
         currentPage: 1,
         perPage: 5,
         totalRows: items.length,
@@ -144,7 +220,7 @@ export default {
 
   methods: {
     info(item, index, button) {
-      axios.get('http://localhost:3001/sum/'+item.id)
+      axios.get('http://192.168.1.91:3001/sum/'+item.id)
               .then(response => (this.infos = response.data));
       this.modalInfo.title = `Имя курьера: ${item.name}`
       this.modalInfo.content = JSON.stringify(this.infos, null, 2)
@@ -162,12 +238,26 @@ export default {
     },
     goTodetail(proId) {
     this.$router.push({name:'details',params:{Pid:proId.id}})
+  },
+
+
+  showModal () {
+    this.$root.$emit('bv::show::modal','modal1')
+  },
+  hideModal () {
+    this.$root.$emit('bv::hide::modal','modal1')
+  },
+  onHidden (evt) {
+    // Return focus to our Open Modal button
+    // See accessibility below for additional return-focus methods
+    this.$refs.btnShow.$el.focus()
   }
+
   },
 
   mounted() {
     axios
-      .get('http://localhost:3001/list')
+      .get('http://192.168.1.91:3001/list')
       .then(response => (this.items = response.data));
 
   }
