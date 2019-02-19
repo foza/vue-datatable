@@ -93,14 +93,14 @@
 
     <b-modal size="xl" id="modalAdd"  @hide="resetModal" :title="modalAdd.title" ok-only>
 
-      <form>
-        <b-form-select v-model="selected" :options="options" />
+      <form @submit="onSubmit">
+        <b-form-select v-model="modalAdd.selected" :options="options" />
         <hr>
-        <b-form-select v-model="selected2" :options="payOptions" />
+        <b-form-select v-model="modalAdd.selected2" :options="payOptions" />
         <hr>
-        <b-form-input type="text" placeholder="Введите сумму" v-model="amount" />
+        <b-form-input type="text" placeholder="Введите сумму" v-model="modalAdd.amount" />
         <hr>
-        <b-form-input type="number" placeholder="Введите номер заказа" v-model="order_id" />
+        <b-form-input type="number" placeholder="Введите номер заказа" v-model="modalAdd.order_id" />
           <hr>
           <div class="mt-3">
 
@@ -246,6 +246,17 @@ export default {
        this.modalAdd.name =  item.name,
        this.$root.$emit('bv::show::modal', 'modalAdd', button)
     },
+
+    onSubmit(evt) {
+        evt.preventDefault()
+        const send = JSON.stringify(this.modalAdd);
+        axios.post('http://192.168.1.91:3001/add/',send).then((response) => {
+                  console.log(response);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+      },
 
   },
 
