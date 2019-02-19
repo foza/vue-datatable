@@ -56,7 +56,7 @@
           Подробно
         </b-button>
 
-          <b-button v-b-modal.modalPrevent>+</b-button>
+          <b-button size="sm" @click="add(row.item,row.index,$event.target)">+</b-button>
 
       </template>
 
@@ -91,17 +91,9 @@
       </b-table>
     </b-modal>
 
-    <b-modal
-      size="xl"
-      id="modalPrevent"
-      ref="modal"
-      title="Создать"
-      @ok="handleOk"
-      @shown="clearName"
-    >
-      <form @submit.stop.prevent="handleSubmit">
-        <b-form-input type="text" placeholder="Enter your name" v-model="name" />
-        <hr>
+    <b-modal size="xl" id="modalAdd"  @hide="resetModal" :title="modalAdd.title" ok-only>
+
+      <form>
         <b-form-select v-model="selected" :options="options" />
         <hr>
         <b-form-select v-model="selected2" :options="payOptions" />
@@ -110,6 +102,10 @@
         <hr>
         <b-form-input type="number" placeholder="Введите номер заказа" v-model="order_id" />
           <hr>
+          <div class="mt-3">
+
+      
+         
 
         <table class="table">
           <thead>
@@ -123,20 +119,26 @@
           </thead>
           <tbody>
             <tr>
-              <td>{{ name }}</td>
+              <td>{{ modalAdd.name }}</td>
               <td> 
                 <p v-if ="selected === '1'">Приход</p>
                 <p v-if ="selected === '2'">Расход</p>
               </td>
               <td>
                 <p v-if ="selected2  === '1'">Бесплатная доставка</p>
-                <p v-if ="selected2 === '2'">Бонус</p>
+                <p v-if ="selected2  === '2'">Бонус</p>
+                <p v-if ="selected2  === '3'">Онлайн</p>
               </td>
               <td>{{ order_id }}</td>
               <td>{{ amount }}</td>
             </tr>
           </tbody>
         </table>
+            <b-button-group>
+        <b-button type="submit" variant="primary">Добавить</b-button>
+        <b-button type="reset" variant="danger">Сброс</b-button>
+      </b-button-group>
+    </div>
       </form>
     </b-modal>
 
@@ -162,12 +164,13 @@ export default {
         infos: infos,
         items: items,
 
-        order_id:'',
-        name:'',
-        selected:'',
-        selected2:'',
-        amount:'',
-
+        modalAdd:{
+            order_id:'',
+            name:'',
+            selected:'',
+            selected2:'',
+            amount:''
+        },
 
         fields: [
           { key: 'name', label: 'ИМЯ', sortable: true, sortDirection: 'desc' },
@@ -189,12 +192,9 @@ export default {
         payOptions: [
           { value: null, text: 'Выберите' },
           { value: '1', text: 'Бесплатная доставка' },
-          { value: '2', text: 'Бонус' }
+          { value: '2', text: 'Бонус' },
+          { value: '3', text: 'Онлайн' }
         ],
-
-
-
-
 
         currentPage: 1,
         perPage: 5,
@@ -236,29 +236,21 @@ export default {
       this.totalRows = filteredItems.length
       this.currentPage = 1
     },
+
     goTodetail(proId) {
-    this.$router.push({name:'details',params:{Pid:proId.id}})
-  },
+       this.$router.push({name:'details',params:{Pid:proId.id}})
+     },
 
-
-  showModal () {
-    this.$root.$emit('bv::show::modal','modal1')
-  },
-  hideModal () {
-    this.$root.$emit('bv::hide::modal','modal1')
-  },
-  onHidden (evt) {
-    // Return focus to our Open Modal button
-    // See accessibility below for additional return-focus methods
-    this.$refs.btnShow.$el.focus()
-  }
+    add(item,index,button){
+       this.modalAdd.title = `Курьер: ${item.name}`,
+       this.modalAdd.name =  item.name,
+       this.$root.$emit('bv::show::modal', 'modalAdd', button)
+    },
 
   },
 
   mounted() {
-    axios
-      .get('http://192.168.1.91:3001/list')
-      .then(response => (this.items = response.data));
+    axios.get('http://192.168.1.91:3001/list').then(response => (this.items = response.data));
 
   }
 
