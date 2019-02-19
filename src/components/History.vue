@@ -51,9 +51,9 @@
 	        </template>
 
         <template slot="type_r" slot-scope="row">
-          <p v-if=" row.item.type_r === 1 ">Бонус от доставки</p>
+          <p v-if=" row.item.type_r === 1 ">Онлайн</p>
           <p v-else-if="2">Сертификат</p>
-          <p v-else-if="3">Бесплатный заказ</p>
+          <p v-else-if="3">Бесплатная доставка</p>
         </template>
 
            </b-table>

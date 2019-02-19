@@ -91,15 +91,30 @@
       </b-table>
     </b-modal>
 
-    <b-modal size="xl" id="modalAdd"  @hide="resetModal" :title="modalAdd.title" ok-only>
+    <b-modal size="xl" id="modalAdd" ref="modal" @hide="resetModalAdd" :title="modalAdd.title" ok-only>
 
       <form @submit="onSubmit">
-        <b-form-select v-model="modalAdd.selected" :options="options" />
+        <label style="float:left;">
+          <b>Приход/Расход</b>
+        </label>
+        <b-form-select
+        id="textPassword" 
+        v-model="modalAdd.type" 
+        :options="options" />
         <hr>
-        <b-form-select v-model="modalAdd.selected2" :options="payOptions" />
+        <label style="float:left;">
+          <b>Откуда</b>
+        </label>
+        <b-form-select v-model="modalAdd.type_r" :options="payOptions" />
         <hr>
+        <label style="float:left;">
+          <b>Сумма</b>
+        </label>
         <b-form-input type="text" placeholder="Введите сумму" v-model="modalAdd.amount" />
         <hr>
+        <label style="float:left;">
+          <b>Номер заказа</b>
+        </label>
         <b-form-input type="number" placeholder="Введите номер заказа" v-model="modalAdd.order_id" />
           <hr>
           <div class="mt-3">
@@ -121,16 +136,16 @@
             <tr>
               <td>{{ modalAdd.name }}</td>
               <td> 
-                <p v-if ="selected === '1'">Приход</p>
-                <p v-if ="selected === '2'">Расход</p>
+                <p v-if ="modalAdd.type === '1'">Приход</p>
+                <p v-if ="modalAdd.type === '2'">Расход</p>
               </td>
               <td>
-                <p v-if ="selected2  === '1'">Бесплатная доставка</p>
-                <p v-if ="selected2  === '2'">Бонус</p>
-                <p v-if ="selected2  === '3'">Онлайн</p>
+                <p v-if ="modalAdd.type_r  === '1'">Онлайн</p>
+                <p v-if ="modalAdd.type_r  === '2'">Сертификат</p>
+                <p v-if ="modalAdd.type_r  === '3'">Бесплатная доставка</p>
               </td>
-              <td>{{ order_id }}</td>
-              <td>{{ amount }}</td>
+              <td>{{ modalAdd.order_id }}</td>
+              <td>{{ modalAdd.amount }}</td>
             </tr>
           </tbody>
         </table>
@@ -167,8 +182,8 @@ export default {
         modalAdd:{
             order_id:'',
             name:'',
-            selected:'',
-            selected2:'',
+            type:'',
+            type_r:'',
             amount:''
         },
 
@@ -181,19 +196,19 @@ export default {
           { key: 'user_sum', label: 'Общый баланс(Остаток)', sortable: true, class: 'text-center' },
         ],
 
-        selected: null,
+        type: '',
         options: [
-          { value: null, text: 'Выберите' },
+          { value: '', text: 'Выберите' },
           { value: '1', text: 'Приход(Начисление)' },
           { value: '2', text: 'Расход' }
         ],
 
-        selected2: null,
+        type_r: '',
         payOptions: [
-          { value: null, text: 'Выберите' },
-          { value: '1', text: 'Бесплатная доставка' },
-          { value: '2', text: 'Бонус' },
-          { value: '3', text: 'Онлайн' }
+          { value: '', text: 'Выберите' },
+          { value: '1', text: 'Онлайн' },
+          { value: '2', text: 'Сертификат' },
+          { value: '3', text: 'Бесплатная доставка' }
         ],
 
         currentPage: 1,
@@ -220,7 +235,7 @@ export default {
 
   methods: {
     info(item, index, button) {
-      axios.get('http://192.168.1.91:3001/sum/'+item.id)
+      axios.get('http://localhost:3001/sum/'+item.id)
               .then(response => (this.infos = response.data));
       this.modalInfo.title = `Имя курьера: ${item.name}`
       this.modalInfo.content = JSON.stringify(this.infos, null, 2)
@@ -229,6 +244,14 @@ export default {
     resetModal() {
       this.modalInfo.title = ''
       this.modalInfo.content = ''
+    },
+
+    resetModalAdd() {
+      this.modalAdd.user_id = ''
+      this.modalAdd.type = ''
+      this.modalAdd.type_r = ''
+      this.modalAdd.amount = ''
+      this.modalAdd.order_id = ''
     },
 
     onFiltered(filteredItems) {
@@ -244,14 +267,26 @@ export default {
     add(item,index,button){
        this.modalAdd.title = `Курьер: ${item.name}`,
        this.modalAdd.name =  item.name,
+       this.modalAdd.user_id =  item.id,
        this.$root.$emit('bv::show::modal', 'modalAdd', button)
     },
-
+      hideModal() {
+        this.$refs.myModalRef.hide()
+      },
     onSubmit(evt) {
         evt.preventDefault()
-        const send = JSON.stringify(this.modalAdd);
-        axios.post('http://192.168.1.91:3001/add/',send).then((response) => {
-                  console.log(response);
+
+        const send = {
+            user_id: this.modalAdd.user_id,
+            type:this.modalAdd.type,
+            type_r:this.modalAdd.type_r,
+            amount:this.modalAdd.amount,
+            order_id: this.modalAdd.order_id,
+            created_at: new Date(),
+            updated_at: new Date()
+        };
+        axios.post('http://localhost:3001/add/',send).then((response) => {
+                  if(response.status===200) this.$refs.modal.hide();
                 })
                 .catch((error) => {
                   console.log(error);
@@ -261,7 +296,7 @@ export default {
   },
 
   mounted() {
-    axios.get('http://192.168.1.91:3001/list').then(response => (this.items = response.data));
+    axios.get('http://localhost:3001/list').then(response => (this.items = response.data));
 
   }
 
