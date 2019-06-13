@@ -126,8 +126,8 @@
           <thead>
             <tr>
               <th scope="col">Имя</th>
-              <th scope="col">Тип</th>
-              <th scope="col">Тип2</th>
+              <th scope="col">Приход/расход</th>
+              <th scope="col">Откуда</th>
               <th scope="col">Номер заказа</th>
               <th scope="col">Сумма</th>
             </tr>
@@ -190,7 +190,7 @@ export default {
         fields: [
           { key: 'name', label: 'ИМЯ', sortable: true, sortDirection: 'desc' },
           { key: 'phone', label: 'Телефон', sortable: true, class: 'text-center' },
-          { key: 'actions', label: 'Actions' }
+          { key: 'actions', label: 'Действие' }
         ],
         infoFields: [
           { key: 'user_sum', label: 'Общый баланс(Остаток)', sortable: true, class: 'text-center' },
@@ -297,7 +297,15 @@ export default {
   },
 
   mounted() {
-    axios.get('http://localhost:3002/list').then(response => (this.items = response.data));
+    // axios.get('http://bringo.loc/api/app/courier/getCouriers').then(response => (this.items = response.data));
+    axios.get('https://bringo.uz/api/app/courier/getCouriers',
+
+            {
+              headers:{
+                'Content-Type': 'application/json'
+              }
+            }
+    ).then(response => (this.items = response.data));
 
   }
 

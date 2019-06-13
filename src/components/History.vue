@@ -103,7 +103,7 @@ export default {
     init(){
     	var panda = this.$route.params.Pid;
       axios
-      .get('http://localhost:3002/courierDetail/'+panda)
+      .get('http://localhost:3002/api/v1/bonus/userBonus/'+panda)
       .then(response => (this.items = response.data));
       console.log(items);
     },
