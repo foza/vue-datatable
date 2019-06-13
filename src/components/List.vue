@@ -235,7 +235,7 @@ export default {
 
   methods: {
     info(item, index, button) {
-      axios.get('http://localhost:3001/sum/'+item.id)
+      axios.get('http://localhost:3002/sum/'+item.id)
               .then(response => (this.infos = response.data));
       this.modalInfo.title = `Имя курьера: ${item.name}`
       this.modalInfo.content = JSON.stringify(this.infos, null, 2)
@@ -277,6 +277,7 @@ export default {
         evt.preventDefault()
 
         const send = {
+            user_type: 2,
             user_id: this.modalAdd.user_id,
             type:this.modalAdd.type,
             type_r:this.modalAdd.type_r,
@@ -285,7 +286,7 @@ export default {
             created_at: new Date(),
             updated_at: new Date()
         };
-        axios.post('http://localhost:3001/add/',send).then((response) => {
+        axios.post('http://localhost:3002/api/v1/bonus/create',send).then((response) => {
                   if(response.status===200) this.$refs.modal.hide();
                 })
                 .catch((error) => {
@@ -296,7 +297,7 @@ export default {
   },
 
   mounted() {
-    axios.get('http://localhost:3001/list').then(response => (this.items = response.data));
+    axios.get('http://localhost:3002/list').then(response => (this.items = response.data));
 
   }
 
