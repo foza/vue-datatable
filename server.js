@@ -17,4 +17,11 @@ app.all("/*", function (req, res) {
 
 var httpServer = http.createServer(app)
 
-httpServer.listen(8080)
+// httpServer.listen(8080)
+
+httpServer.listen(8080, (err) => {
+    if (err) {
+        return console.log('something bad happened', err)
+    }
+    console.log("server is listening on 8080")
+})
