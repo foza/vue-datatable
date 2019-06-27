@@ -15,6 +15,6 @@ app.all("/*", function (req, res) {
     res.sendFile(path.join(__dirname, "dist", "index.html"))
 })
 
-var httpsServer = https.createServer(credentials, app)
+var httpsServer = https.createServer(app)
 
 httpsServer.listen(8080)
