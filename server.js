@@ -1,5 +1,5 @@
 // var fs = require('fs');
-var https = require('https')
+var http = require('http')
 // var privateKey  = fs.readFileSync('./sslcert/key_uz.key');
 // var certificate = fs.readFileSync('./sslcert/key_uz.pem');
 
@@ -15,6 +15,6 @@ app.all("/*", function (req, res) {
     res.sendFile(path.join(__dirname, "dist", "index.html"))
 })
 
-var httpsServer = https.createServer(app)
+var httpServer = http.createServer(app)
 
-httpsServer.listen(8080)
+httpServer.listen(8080)
